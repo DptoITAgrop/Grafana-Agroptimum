@@ -5,7 +5,7 @@ import { colorManipulator } from '@grafana/data';
 import { useTheme2 } from '@grafana/ui';
 import g8LoginDarkSvg from 'img/g8_login_dark.svg';
 import g8LoginLightSvg from 'img/g8_login_light.svg';
-import grafanaIconSvg from 'img/grafana_icon.svg';
+import grafanaIconSvg from 'img/shaping_pistachio_industry sin fondo.png';
 
 export interface BrandComponentProps {
   className?: string;
@@ -17,8 +17,6 @@ export const LoginLogo: FC<BrandComponentProps & { logo?: string }> = ({ classNa
 };
 
 const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
-  const theme = useTheme2();
-
   const background = css({
     '&:before': {
       content: '""',
@@ -27,18 +25,12 @@ const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
       right: 0,
       bottom: 0,
       top: 0,
-      background: `url(${theme.isDark ? g8LoginDarkSvg : g8LoginLightSvg})`,
-      backgroundPosition: 'top center',
-      backgroundSize: 'auto',
+      background: `url('public/img/Campo_Agroptimum.jpg')`,
+      backgroundPosition: 'center',
+      backgroundSize: 'cover',
       backgroundRepeat: 'no-repeat',
-
-      opacity: 0,
-      transition: 'opacity 3s ease-in-out',
-
-      [theme.breakpoints.up('md')]: {
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-      },
+      opacity: 1,
+      transition: 'none',
     },
   });
 
@@ -62,8 +54,8 @@ export class Branding {
   static LoginBackground = LoginBackground;
   static MenuLogo = MenuLogo;
   static LoginBoxBackground = LoginBoxBackground;
-  static AppTitle = 'Grafana';
-  static LoginTitle = 'Welcome to Grafana';
+  static AppTitle = 'Sensórica Agroptimum';
+  static LoginTitle = 'Bienvenido a Sensórica Agróptimum';
   static HideEdition = false;
   static GetLoginSubTitle = (): null | string => {
     return null;

@@ -82,6 +82,12 @@ export const getStyles = (theme: GrafanaTheme2) => {
     submitButton: css({
       justifyContent: 'center',
       width: '100%',
+      backgroundColor: '#3DBE4C', // verde
+      borderColor: '#3DBE4C',
+      color: '#fff',
+      '&:hover': {
+        backgroundColor: '#36a843',
+      },
     }),
 
     skipButton: css({

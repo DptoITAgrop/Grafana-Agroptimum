@@ -4,6 +4,10 @@
   "projectType": "application",
   "targets": {
     "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn dev"
+      },
       "dependsOn": [
         "themes-generate",
         {
