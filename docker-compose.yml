@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   grafana:
-    build:
-      context: .
+    build: .
     container_name: grafana_agroptimum
     ports:
       - "3000:3000"
