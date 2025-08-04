@@ -1,19 +1,13 @@
 # syntax=docker/dockerfile:1
 
-# to maintain formatting of multiline commands in vscode, add the following to settings.json:
-# "docker.languageserver.formatter.ignoreMultilineInstructions": true
-
 ARG BASE_IMAGE=alpine-base
 ARG GO_IMAGE=go-builder-base
 ARG JS_IMAGE=js-builder-base
 ARG JS_PLATFORM=linux/amd64
 
-# Default to building locally
 ARG GO_SRC=go-builder
 ARG JS_SRC=js-builder
 
-# Dependabot cannot update dependencies listed in ARGs
-# By using FROM instructions we can delegate dependency updates to dependabot
 FROM alpine:3.21.3 AS alpine-base
 FROM ubuntu:22.04 AS ubuntu-base
 FROM golang:1.24.4-alpine AS go-builder-base
@@ -52,15 +46,13 @@ ARG COMMIT_SHA=""
 ARG BUILD_BRANCH=""
 ARG GO_BUILD_TAGS="oss"
 ARG WIRE_TAGS="oss"
-ARG BINGO="true"
+ARG BINGO="false"
+
+# Habilita el proxy público para evitar el error 403
+ENV GOPROXY=https://proxy.golang.org,direct
 
 RUN if grep -i -q alpine /etc/issue; then \
-  apk add --no-cache \
-  # This is required to allow building on arm64 due to https://github.com/golang/go/issues/22040
-  binutils-gold \
-  bash \
-  # Install build dependencies
-  gcc g++ make git; \
+  apk add --no-cache binutils-gold bash gcc g++ make git; \
   fi
 
 WORKDIR /tmp/grafana
@@ -69,8 +61,6 @@ COPY go.* ./
 COPY .bingo .bingo
 COPY .citools .citools
 
-# Copy go dependencies first
-# If updating this, please also update devenv/frontend-service/backend.dockerfile
 COPY pkg/util/xorm pkg/util/xorm
 COPY pkg/apiserver pkg/apiserver
 COPY pkg/apimachinery pkg/apimachinery
@@ -96,7 +86,9 @@ COPY pkg/codegen pkg/codegen
 COPY pkg/plugins/codegen pkg/plugins/codegen
 
 RUN go mod download
-RUN if [[ "$BINGO" = "true" ]]; then \
+
+# Desactivado por defecto
+RUN if [ "$BINGO" = "true" ]; then \
   go install github.com/bwplotka/bingo@latest && \
   bingo get -v; \
   fi
@@ -122,15 +114,10 @@ RUN make build-go GO_BUILD_TAGS=${GO_BUILD_TAGS} WIRE_TAGS=${WIRE_TAGS}
 FROM ${BASE_IMAGE} AS tgz-builder
 
 WORKDIR /tmp/grafana
-
 ARG GRAFANA_TGZ="grafana-latest.linux-x64-musl.tar.gz"
-
 COPY ${GRAFANA_TGZ} /tmp/grafana.tar.gz
-
-# add -v to make tar print every file it extracts
 RUN tar x -z -f /tmp/grafana.tar.gz --strip-components=1
 
-# helpers for COPY --from
 FROM ${GO_SRC} AS go-src
 FROM ${JS_SRC} AS js-src
 
@@ -153,7 +140,6 @@ ENV PATH="/usr/share/grafana/bin:$PATH" \
 
 WORKDIR $GF_PATHS_HOME
 
-# Install dependencies
 RUN if grep -i -q alpine /etc/issue; then \
   apk add --no-cache ca-certificates bash curl tzdata musl-utils && \
   apk info -vv | sort; \
@@ -167,10 +153,7 @@ RUN if grep -i -q alpine /etc/issue; then \
   echo 'ERROR: Unsupported base image' && /bin/false; \
   fi
 
-# glibc support for alpine x86_64 only
-# docker run --rm --env STDOUT=1 sgerrand/glibc-builder 2.40 /usr/glibc-compat > glibc-bin-2.40.tar.gz
 ARG GLIBC_VERSION=2.40
-
 RUN if grep -i -q alpine /etc/issue && [ `arch` = "x86_64" ]; then \
   wget -qO- "https://dl.grafana.com/glibc/glibc-bin-$GLIBC_VERSION.tar.gz" | tar zxf - -C / \
   usr/glibc-compat/lib/ld-linux-x86-64.so.2 \
@@ -221,7 +204,6 @@ COPY --from=js-src /tmp/grafana/LICENSE ./
 EXPOSE 3000
 
 ARG RUN_SH=./packaging/docker/run.sh
-
 COPY ${RUN_SH} /run.sh
 
 USER "$GF_UID"
