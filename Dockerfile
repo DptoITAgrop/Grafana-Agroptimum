@@ -35,7 +35,7 @@ RUN yarn build
 # 2) Imagen final de GRAFANA
 #    Reutilizamos el binario oficial y solo sustituimos los assets compilados.
 # -----------------------------------------------------------------------------
-FROM grafana/grafana-oss:10.4.2
+FROM grafana/grafana-oss:12.1.0
 
 USER root
 
