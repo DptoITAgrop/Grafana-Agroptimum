@@ -1,55 +1,37 @@
-# -----------------------------------------------------------------------------
-# 1) Construcción del FRONTEND (yarn build)
-#    Copiamos lo mínimo imprescindible para que yarn tenga todo lo necesario.
-#    Si tu repo tiene carpetas adicionales, añádelas igual que abajo.
-# -----------------------------------------------------------------------------
+# ----------------- Fase UI (compila /public/build) -----------------
 FROM node:20-alpine AS ui-build
 
 WORKDIR /src
-RUN apk add --no-cache git python3 make g++
+# Toolchain y compatibilidad C (algunos paquetes nativos lo requieren)
+RUN apk add --no-cache git python3 make g++ libc6-compat
 
-# Archivos de yarn/monorepo
+# Yarn (berry) con corepack
+RUN corepack enable
+
+# Ajustes que suelen resolver el fallo de install
+ENV YARN_CACHE_FOLDER=/yarn-cache \
+    YARN_ENABLE_IMMUTABLE_INSTALLS=false \
+    YARN_ENABLE_INLINE_BUILDS=false \
+    NODE_OPTIONS=--max-old-space-size=2048
+
+# Archivos de Yarn / monorepo
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn .yarn
 
-# Código necesario para el build del frontend
+# Código necesario para el build (añade aquí lo que uses en tu fork)
 COPY public public
 COPY packages packages
-COPY emails emails
 COPY scripts scripts
+COPY emails emails
 COPY tsconfig.json .
 COPY .browserslistrc ./
 COPY .prettierrc.js ./
 COPY eslint.config.js ./
 COPY .editorconfig ./
 
-# Si en tu fork existen estas rutas, descoméntalas y cópialas:
-# COPY plugin* plugin*
-# COPY apps apps
+# Instala deps con caché y sin ejecutar builds inline
+RUN --mount=type=cache,target=/yarn-cache \
+    yarn install --mode=skip-build --no-progress
 
-ENV NODE_ENV=production
-RUN yarn install --immutable --inline-builds
+# Compila el frontend
 RUN yarn build
-
-# -----------------------------------------------------------------------------
-# 2) Imagen final de GRAFANA
-#    Reutilizamos el binario oficial y solo sustituimos los assets compilados.
-# -----------------------------------------------------------------------------
-FROM grafana/grafana-oss:10.4.2
-
-USER root
-
-# Tu configuración (si la tienes)
-COPY --chown=grafana:grafana conf/ /etc/grafana/
-
-# Resultado del build del frontend
-COPY --from=ui-build /src/public/build/ /usr/share/grafana/public/build/
-
-# Assets estáticos personalizados (opcional)
-COPY --chown=grafana:grafana public/img/  /usr/share/grafana/public/img/
-# Si tienes CSS propios:
-# COPY --chown=grafana:grafana public/css/ /usr/share/grafana/public/css/
-# Si modificaste el index.html (normalmente no hace falta):
-# COPY --chown=grafana:grafana public/views/index.html /usr/share/grafana/public/views/index.html
-
-USER grafana
