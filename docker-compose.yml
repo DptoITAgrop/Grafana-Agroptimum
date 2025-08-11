@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   grafana:
     build: .
@@ -7,16 +9,14 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
+      # Admin inicial
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      # Dominio público tal cual lo usas por el proxy:
+      # Importante para proxy:
       - GF_SERVER_DOMAIN=sensoricapre.agroptimum.com
-      # MUY IMPORTANTE: usa el protocolo que llega por el proxy (https) y termina con /
-      - GF_SERVER_ROOT_URL=%(protocol)s://sensoricapre.agroptimum.com/
-      # Como NO usas subruta (/grafana), déjalo EN false
-      - GF_SERVER_SERVE_FROM_SUB_PATH=false
-      # Opcional pero recomendable tras proxy SSL:
-      - GF_SERVER_PROTOCOL=http
+      - GF_SERVER_ROOT_URL=https://sensoricapre.agroptimum.com/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      # (opcional) explícito, por si lo usas en nginx
       - GF_SERVER_HTTP_PORT=3000
     restart: unless-stopped
 
