@@ -1,17 +1,17 @@
+# Dockerfile
 FROM grafana/grafana-oss:10.4.2
 
 USER root
 
-# Configuración personalizada
-COPY --chown=grafana:grafana conf/ /etc/grafana/
+# 1) Config opcional
+COPY --chown=grafana:grafana conf/custom.ini /etc/grafana/custom.ini
 
-# Copia imágenes personalizadas
+# 2) Solo tus overrides:
+#   - Iconos/imagenes
 COPY --chown=grafana:grafana public/img/ /usr/share/grafana/public/img/
-
-# Copia CSS personalizados
-COPY --chown=grafana:grafana public/css/ /usr/share/grafana/public/css/
-
-# Si modificaste vistas (HTML)
-COPY --chown=grafana:grafana public/views/ /usr/share/grafana/public/views/
+#   - Login (si lo cambiaste)
+COPY --chown=grafana:grafana public/views/login.html /usr/share/grafana/public/views/login.html
+#   - Index (solo si lo cambiaste)
+# COPY --chown=grafana:grafana public/views/index.html /usr/share/grafana/public/views/index.html
 
 USER grafana
