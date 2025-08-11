@@ -2,9 +2,8 @@ version: "3.8"
 services:
   grafana:
     build:
-      context: .                # raíz del repo
-      dockerfile: Dockerfile    # ruta al Dockerfile si no está en la raíz
-    image: sensoricapre-grafana:0.1.0   # opcional; así podrás reutilizar la imagen
+      context: .          # raíz del repo donde están Dockerfile + conf + public
+      dockerfile: Dockerfile
     container_name: grafana_agroptimum
     ports:
       - "3000:3000"
