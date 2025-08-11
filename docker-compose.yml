@@ -1,8 +1,10 @@
 version: "3.8"
-
 services:
   grafana:
-    image: tuusuario/sensoricapre-grafana:1.0.0
+    build:
+      context: .                # raíz del repo
+      dockerfile: Dockerfile    # ruta al Dockerfile si no está en la raíz
+    image: sensoricapre-grafana:0.1.0   # opcional; así podrás reutilizar la imagen
     container_name: grafana_agroptimum
     ports:
       - "3000:3000"
@@ -11,11 +13,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SERVER_DOMAIN=sensoricapre.agroptimum.com
       - GF_SERVER_ROOT_URL=https://sensoricapre.agroptimum.com/
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
     volumes:
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
-    pull_policy: always
 
 volumes:
   grafana_data:
