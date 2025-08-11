@@ -2,23 +2,20 @@ version: "3.8"
 
 services:
   grafana:
-    build: .
+    image: tuusuario/sensoricapre-grafana:1.0.0
     container_name: grafana_agroptimum
     ports:
       - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
     environment:
-      # Admin inicial
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
-      # Importante para proxy:
       - GF_SERVER_DOMAIN=sensoricapre.agroptimum.com
       - GF_SERVER_ROOT_URL=https://sensoricapre.agroptimum.com/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      # (opcional) explícito, por si lo usas en nginx
-      - GF_SERVER_HTTP_PORT=3000
+    volumes:
+      - grafana_data:/var/lib/grafana
     restart: unless-stopped
+    pull_policy: always
 
 volumes:
   grafana_data:
