@@ -1,6 +1,6 @@
 # --- (Plan B) Build de assets dentro de Docker ---
 # Si YA generaste public/build en local, puedes saltarte este stage.
-FROM node:20-alpine AS assets
+FROM node:24-alpine AS assets
 WORKDIR /src
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn .yarn
