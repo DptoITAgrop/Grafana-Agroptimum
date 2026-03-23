@@ -35,7 +35,7 @@ jobs:
       - name: Build grafana
         run: make build
       - name: Install Cypress dependencies
-        uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f
+        uses: cypress-io/github-action@4c06c48f3ffea349b7189aa06dfcda47a9fa7b92
         with:
           runTests: false
       - name: Run dashboardNewLayouts e2e
