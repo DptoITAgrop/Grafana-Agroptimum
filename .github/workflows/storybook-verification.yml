@@ -39,7 +39,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Run Storybook and E2E tests
-        uses: cypress-io/github-action@108b8684ae52e735ff7891524cbffbcd4be5b19f
+        uses: cypress-io/github-action@948d67d3074f1bbb6379c8bdbb04e95d2f8e593f
         with:
           browser: chrome
           start: yarn storybook --quiet
